@@ -7,11 +7,9 @@ import java.util.Optional;
 
 public interface AppRepository<T, I> {
 
-  T save(T entity);
+  T create(T entity);
+  T updateById(I id, T updated);
   Collection<T> findAll();
-  Collection<Phone> findAll(Comparator<Phone> phoneComparator);
+  Collection<Phone> findAll(Comparator<T> entityComparator);
   Optional<T> findById(I id);
-  default Class<T> getType(Class<T> type){
-    return type;
-  }
 }

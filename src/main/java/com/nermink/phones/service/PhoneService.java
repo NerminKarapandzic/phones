@@ -38,19 +38,11 @@ public class PhoneService {
 
   public PhoneResponse create(CreatePhoneRequest request) {
     var phone = new Phone(request.getName());
-
-    return new PhoneResponse(phoneRepository.save(phone));
+    return new PhoneResponse(phoneRepository.create(phone));
   }
 
   public PhoneResponse update(Integer id, UpdatePhoneRequest request) {
-    var phone = phoneRepository.findById(id).orElseThrow(
-        () -> new ApplicationException(
-            ErrorCode.RESOURCE_NOT_FOUND, HttpStatus.NOT_FOUND,
-            String.format("Resource with id: %s was not found", id)));
-
-    //TODO:If we set the name and the unique validation fails name will still be changed
-    phone.setName(request.getName());
-
-    return new PhoneResponse(phoneRepository.save(phone));
+    var phone = new Phone(id, request.getName());
+    return  new PhoneResponse(phoneRepository.updateById(id, phone));
   }
 }

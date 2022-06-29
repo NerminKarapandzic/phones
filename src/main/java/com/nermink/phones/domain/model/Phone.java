@@ -13,6 +13,11 @@ public class Phone{
     this.name = name;
   }
 
+  public Phone(Integer id, String name) {
+    this.id = id;
+    this.name = name;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if(obj == null) return false;

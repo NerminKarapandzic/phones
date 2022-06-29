@@ -29,18 +29,15 @@ public class PhoneRepository implements AppRepository<Phone, Integer> {
     var p1 = new Phone("Acer");
     var p2 = new Phone("Alcatel");
     var p3 = new Phone("Bosch");
-    this.save(p1);
-    this.save(p2);
-    this.save(p3);
+    this.create(p1);
+    this.create(p2);
+    this.create(p3);
   }
 
   //Method is synchronized because server serves requests on multiple threads
   @Override
-  synchronized public Phone save(Phone entity) {
-    //If entityId is null then it's an insert, so we generate an id
-    if (entity.getId() == null) {
-      entity.setId(phones.size() + 1);
-    }
+  synchronized public Phone create(Phone entity) {
+    entity.setId(phones.size() + 1);
 
     //We check the unique constraint
     if (phonesNameIndex.contains(entity)) {
@@ -50,11 +47,30 @@ public class PhoneRepository implements AppRepository<Phone, Integer> {
           "field name must be unique");
     }
 
-    //This will now replace the entity if it's an update and insert if not
     phones.put(entity.getId(), entity);
     //We also update the name index
     phonesNameIndex.add(entity);
     return entity;
+  }
+
+  @Override
+  synchronized public Phone updateById(Integer id, Phone updated) {
+    //We check the unique constraint
+    if (phonesNameIndex.contains(updated)) {
+      throw new ApplicationException(
+          ErrorCode.DATA_CONSTRAINT_VIOLATION,
+          HttpStatus.UNPROCESSABLE_ENTITY,
+          "field name must be unique");
+    }
+
+    var phone = phones.replace(id, updated);
+
+    if (phone == null) {
+      throw new ApplicationException(ErrorCode.RESOURCE_NOT_FOUND, HttpStatus.NOT_FOUND,
+          String.format("resource with id %s not found", id));
+    }
+
+    return phone;
   }
 
   @Override
