@@ -43,6 +43,6 @@ public class PhoneService {
 
   public PhoneResponse update(Integer id, UpdatePhoneRequest request) {
     var phone = new Phone(id, request.getName());
-    return  new PhoneResponse(phoneRepository.updateById(id, phone));
+    return new PhoneResponse(phoneRepository.updateById(id, phone));
   }
 }

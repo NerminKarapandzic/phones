@@ -19,10 +19,10 @@ import org.springframework.stereotype.Repository;
 public class PhoneRepository implements AppRepository<Phone, Integer> {
 
   //This is analog to a table with a primary key
-  public static HashMap<Integer, Phone> phones = new HashMap<>();
+  private static final HashMap<Integer, Phone> phones = new HashMap<>();
 
   //This is analog to a unique key index
-  public static Set<Phone> phonesNameIndex = new HashSet<>();
+  private static final Set<Phone> phonesNameIndex = new HashSet<>();
 
   @PostConstruct
   void seedData() {
@@ -36,7 +36,7 @@ public class PhoneRepository implements AppRepository<Phone, Integer> {
 
   //Method is synchronized because server serves requests on multiple threads
   @Override
-  synchronized public Phone create(Phone entity) {
+  public synchronized Phone create(Phone entity) throws ApplicationException{
     entity.setId(phones.size() + 1);
 
     //We check the unique constraint
@@ -54,7 +54,7 @@ public class PhoneRepository implements AppRepository<Phone, Integer> {
   }
 
   @Override
-  synchronized public Phone updateById(Integer id, Phone updated) {
+  public synchronized Phone updateById(Integer id, Phone updated) {
     //We check the unique constraint
     if (phonesNameIndex.contains(updated)) {
       throw new ApplicationException(
@@ -70,7 +70,7 @@ public class PhoneRepository implements AppRepository<Phone, Integer> {
           String.format("resource with id %s not found", id));
     }
 
-    return phone;
+    return updated;
   }
 
   @Override
