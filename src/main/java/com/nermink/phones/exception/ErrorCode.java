@@ -4,6 +4,7 @@ public enum ErrorCode {
 
   RESOURCE_NOT_FOUND(40401),
   DATA_CONSTRAINT_VIOLATION(40001),
+  DATA_VALIDATION_VIOLATION(40002),
   UNKNOWN_FIELD(40002);
 
   private final int code;

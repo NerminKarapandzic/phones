@@ -89,4 +89,10 @@ public class PhoneRepository implements AppRepository<Phone, Integer> {
   public Optional<Phone> findById(Integer id) {
     return Optional.ofNullable(phones.get(id));
   }
+
+  @Override
+  public void deleteAll() {
+    phones.clear();
+    phonesNameIndex.clear();
+  }
 }

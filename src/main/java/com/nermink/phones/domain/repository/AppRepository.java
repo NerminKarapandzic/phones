@@ -9,6 +9,7 @@ public interface AppRepository<T, I> {
 
   T create(T entity);
   T updateById(I id, T updated);
+  void deleteAll();
   Collection<T> findAll();
   Collection<Phone> findAll(Comparator<T> entityComparator);
   Optional<T> findById(I id);

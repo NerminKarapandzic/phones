@@ -1,0 +1,129 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Phones App
+servers:
+  - url: http://localhost:8080/api/v1
+tags:
+  - name: Phones
+paths:
+  /phones:
+    get:
+      tags:
+        - Phones
+      summary: Get all phones
+      description: Find all phones, supports sortBy parameter
+      parameters:
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+          description: sorts the results by name in ascending order
+      responses:
+        "200":
+          description: Phones response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhonesResponse"
+        "422":
+          description: Unprocessable entity, invalid query param value passed
+          content: 
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      tags:
+        - Phones
+      summary: Create a new phone
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePhoneRequest"
+        required: true
+      responses:
+        "201":
+          description: Phone created
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhoneResponse"
+        "422":
+          description: Data violation error, either unique index violation or data validation error
+          content: 
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/ErrorResponse"
+  /phones/{id}:
+    put:
+      tags:
+        - Phones
+      summary: Update phone
+      parameters:
+          - in: path
+            name: id
+            schema:
+              type: integer
+            required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePhoneRequest"
+        required: true
+      responses:
+        "200":
+          description: Phone updated
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhoneResponse"
+        "422":
+          description: Data violation error, either unique index violation or data validation error
+          content: 
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Phone with specified id was not found
+          content: 
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    PhonesResponse:
+      type: array
+      items: 
+        type: object
+        properties:
+          id:
+            type: integer
+          name:
+            type: string
+    PhoneResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ErrorResponse:
+      type: object
+      properties: 
+        code:
+          type: integer
+        message: 
+          type: string
+        status: 
+          type: integer
+        errors: 
+          type: object
+          additionalProperties:
+            type: string
+    CreatePhoneRequest:
+      type: object
+      properties:
+        name:
+          type: string

@@ -8,6 +8,7 @@ import com.nermink.phones.controller.request.CreatePhoneRequest;
 import com.nermink.phones.controller.request.UpdatePhoneRequest;
 import com.nermink.phones.controller.response.ErrorResponse;
 import com.nermink.phones.controller.response.PhoneResponse;
+import com.nermink.phones.domain.model.Phone;
 import com.nermink.phones.domain.repository.PhoneRepository;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,14 +29,16 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class PhonesControllerIT {
 
   Gson gson = new Gson();
+
   @Autowired
   TestRestTemplate testRestTemplate;
 
+  @Autowired
   PhoneRepository phoneRepository;
 
   @BeforeEach
   void setup(){
-    phoneRepository = new PhoneRepository();
+    phoneRepository.deleteAll();
   }
 
   @Test
@@ -44,7 +47,7 @@ public class PhonesControllerIT {
     var response = testRestTemplate.exchange("/api/v1/phones", HttpMethod.GET, HttpEntity.EMPTY, String.class);
     List<PhoneResponse> body = gson.fromJson(response.getBody(), new TypeToken<List<PhoneResponse>>(){}.getType());
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(body).hasSize(3);
+    assertThat(body).hasSize(0);
   }
 
   @Test
@@ -69,11 +72,25 @@ public class PhonesControllerIT {
   }
 
   @Test
+  @DisplayName("Should return status 422, validation error")
+  void create_validationError(){
+
+    CreatePhoneRequest request = new CreatePhoneRequest();
+    HttpEntity<CreatePhoneRequest> req = new HttpEntity<>(request);
+
+    var response = testRestTemplate.exchange("/api/v1/phones", HttpMethod.POST, req, String.class);
+    ErrorResponse body = gson.fromJson(response.getBody(), ErrorResponse.class);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+    assertThat(body.getCode()).isEqualTo(40002);
+  }
+
+  @Test
   @DisplayName("Should return status 422, unique constraint validation fail")
   void create_uniqueError(){
 
     CreatePhoneRequest request = new CreatePhoneRequest();
     request.setName("Alcatel");
+    phoneRepository.create(new Phone(request.getName()));
     HttpEntity<CreatePhoneRequest> req = new HttpEntity<>(request);
 
     var response = testRestTemplate.exchange("/api/v1/phones", HttpMethod.POST, req, String.class);
@@ -87,6 +104,7 @@ public class PhonesControllerIT {
   void update_successResponse(){
 
     UpdatePhoneRequest request = new UpdatePhoneRequest();
+    phoneRepository.create(new Phone("Alcatel"));
     request.setName("Xiaomi");
     HttpEntity<UpdatePhoneRequest> req = new HttpEntity<>(request);
 
